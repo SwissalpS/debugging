@@ -9,7 +9,7 @@
 			))
 
 ]]--- DEBUG HUD
-
+local function pd(m) print(dump(m))end
 local HUDS = {}
 function DEBUGHUD(player, text)player:hud_change(HUDS[player:get_player_name()], "text", text or "")end
 minetest.register_on_leaveplayer(function(player)HUDS[player:get_player_name()]=nil end)
