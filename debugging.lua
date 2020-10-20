@@ -26,12 +26,29 @@ minetest.register_on_joinplayer(function(player)
 		number    = 0xFFFFFF,
 	})
 end)
-DEBUGHUD_CALLBACK = function(player, pos) DEBUGHUD(player, pos and minetest.get_node(pos).name or "") end
+DEBUGHUD_CALLBACK = function(player, pos, thing)
+	if not pos then return end
+
+	local sOut = ''
+	local type = thing.type
+	if 'node' == type then
+		sOut = minetest.get_node(pos).name or ''
+	elseif 'object' == type then
+		sOut = thing.ref:get_entity_name()
+		local entity = thing.ref:get_luaentity()
+		if entity and entity.get_staticdata then
+			sOut = sOut .. '\n'
+				.. dump(minetest.deserialize(entity:get_staticdata()))
+		end
+		-- local meta = entity:get_meta()for k, v in pairs(meta:to_table()) do sOut = sOut .. ' ' .. k end
+	end
+	DEBUGHUD(player, sOut)
+end
 minetest.register_globalstep(function()
 	for _,player in pairs(minetest.get_connected_players()) do
 		local eye = vector.add(player:get_pos(), {x=0,y=player:get_properties().eye_height,z=0}) -- player:get_eye_offset()
 		local look = vector.multiply(player:get_look_dir(), 4)
-		ray = Raycast(eye, vector.add(eye, look), false, false)
+		ray = Raycast(eye, vector.add(eye, look), true, false)
 		local thing = ray:next()
 		while thing and thing.ref == player do thing = ray:next() end
 		local pos = nil
@@ -40,8 +57,10 @@ minetest.register_globalstep(function()
 			if under and under.name ~= "air" then
 				pos = thing.under
 			end
+		elseif thing and 'drawers:visual' == thing.ref:get_entity_name() then
+			pos = thing.ref:get_pos()
 		end
-		DEBUGHUD_CALLBACK(player, pos)
+		DEBUGHUD_CALLBACK(player, pos, thing)
 	end
 end)
 
