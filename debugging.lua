@@ -23,7 +23,7 @@ minetest.register_on_joinplayer(function(player)
 		alignment = 0,
 		scale     = { x = 300, y = 90},
 		size      = { x = 100, y = 100},
-		number    = 0xFF3030,
+		number    = 0xFFFFFF,
 	})
 end)
 DEBUGHUD_CALLBACK = function(player, pos) DEBUGHUD(player, pos and minetest.get_node(pos).name or "") end
